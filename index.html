@@ -1,0 +1,67 @@
+<html>
+<head>
+<style>
+.toolbar {
+    visibility: hidden !important;
+}
+#viewerContainer {
+    top: 0 !important;
+}
+</style>
+</head>
+<body>
+<div id="my_canvas"></div>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.6.347/build/pdf.min.js">
+</script>
+<script>
+function renderPDF(url, canvasContainer) {
+
+function renderPage(page) {
+
+    let viewport = page.getViewport({scale: .5});
+    const DPI = 72;
+    const PRINT_OUTPUT_SCALE = DPI/72;
+    const scale = canvasContainer.clientWidth / viewport.width;
+    const canvas = document.createElement('canvas');
+
+    const ctx = canvas.getContext('2d');
+    viewport = page.getViewport({scale});
+
+    canvas.width = Math.floor(viewport.width * PRINT_OUTPUT_SCALE);
+    canvas.height = Math.floor(viewport.height * PRINT_OUTPUT_SCALE);
+    canvas.style.width = '100%';
+
+    canvas.style.transform = 'scale(1,1)';
+    canvas.style.transformOrigin = '0% 0%';
+
+    const canvasWrapper = document.createElement('div');
+
+    canvasWrapper.style.width = '100%';
+    canvasWrapper.style.height = '100%';
+
+    canvasWrapper.appendChild(canvas);
+
+        const renderContext = {
+            canvasContext: ctx,
+            viewport,
+        }
+
+        canvasContainer.appendChild(canvasWrapper)
+
+        page.render(renderContext)
+    }
+
+    function renderPages(pdfDoc) {
+        for (let num = 1; num <= pdfDoc.numPages; num += 1)
+            pdfDoc.getPage(num).then(renderPage)
+    }
+
+    pdfjsLib.disableWorker = true
+    pdfjsLib.getDocument(url).promise.then(renderPages)
+}
+
+renderPDF('chronovariations.pdf', document.getElementById('my_canvas')) //div element
+
+</script>
+</body>
+</html>
